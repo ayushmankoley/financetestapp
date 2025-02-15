@@ -1,121 +1,105 @@
-import React from 'react';
-import { ChevronRight, PieChart, Shield, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import Image from "next/image";
+import { ChevronRight, PieChart, Shield, TrendingUp, ArrowRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-// Define interface for FeatureCard props
-interface FeatureCardProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}
-
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => {
-  return (
-    <div className="bg-white p-8 rounded-xl shadow-lg text-center">
-      <div className="flex justify-center mb-4">
-        {icon}
-      </div>
-      <h3 className="text-xl font-semibold mb-4 text-gray-900">{title}</h3>
-      <p className="text-gray-600">{description}</p>
-    </div>
-  );
-};
+import { Card, CardContent } from '@/components/ui/card';
+import Link from 'next/link';
 
 const LandingPage = () => {
+  const [visitorCount, setVisitorCount] = useState(0);
+
+  useEffect(() => {
+    const randomStart = Math.floor(Math.random() * (1000 - 900) + 900);
+    setVisitorCount(randomStart);
+    
+    const interval = setInterval(() => {
+      setVisitorCount(prev => prev + 1);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleVideoClick = () => {
+    window.open('https://youtube.com/your-video-link', '_blank');
+  };
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Smart Investment Planning Made Simple
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100">
-              AI-powered portfolio planning to help you achieve your financial goals
+    <div className="min-h-screen bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50">
+      {/* Responsive Navbar */}
+      <nav className="bg-white/80 backdrop-blur-sm shadow-sm p-4 sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center">
+            <div className="text-blue-600 font-bold text-4xl">Kautilya</div>
+            <div className="hidden md:flex space-x-4">
+              <Link href="/planner">
+                <Button className="bg-blue-600 text-white hover:bg-blue-700">
+                  Financial Planner
+                </Button>
+              </Link>
+            </div>
+            <button className="md:hidden text-blue-600">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <main className="container mx-auto px-4 py-8 md:py-12 lg:py-16">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="space-y-6 max-w-xl mx-auto lg:mx-0">
+            <div>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-blue-900 mb-4">
+              Kautilya
+              </h1>
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold italic text-blue-600">
+              Smart Investing, Simplified With AI
+              </h2>
+            </div>
+            <p className="text-base md:text-lg text-blue-700">
+            Harness the power of AI with Kautilya—your intelligent investment planner powered by Gemini.
             </p>
-            <Button 
-              className="bg-white text-blue-600 hover:bg-blue-50 text-lg px-8 py-6 rounded-full"
-              onClick={() => window.location.href = '/planner'}
-            >
-              Start Planning Now
-              <ChevronRight className="ml-2" />
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Features Section */}
-      <div className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose Our Platform?
-            </h2>
-            <p className="text-xl text-gray-600">
-              Professional-grade investment planning powered by artificial intelligence
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <FeatureCard
-              icon={<PieChart className="w-12 h-12 text-blue-600" />}
-              title="Smart Portfolio Allocation"
-              description="Advanced algorithms optimize your investment mix based on your goals and risk tolerance"
-            />
-            <FeatureCard
-              icon={<Shield className="w-12 h-12 text-blue-600" />}
-              title="Risk Management"
-              description="Sophisticated risk analysis ensures your portfolio aligns with your comfort level"
-            />
-            <FeatureCard
-              icon={<TrendingUp className="w-12 h-12 text-blue-600" />}
-              title="Goal-Based Planning"
-              description="Customized investment strategies designed to help you reach your financial targets"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Company</h3>
-              <ul className="space-y-2">
-                <li>About Us</li>
-                <li>Contact</li>
-                <li>Careers</li>
-              </ul>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/planner" className="w-full sm:w-auto">
+                <Button className="w-full bg-blue-600 text-white hover:bg-blue-700">
+                  Start Your Financial Journey
+                </Button>
+              </Link>
+              <Button 
+                variant="outline" 
+                className="w-full sm:w-auto border-blue-600 text-blue-600 hover:bg-blue-50"
+                onClick={handleVideoClick}
+              >
+                Watch Demo <Play className="ml-2 h-4 w-4" />
+              </Button>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Resources</h3>
-              <ul className="space-y-2">
-                <li>Blog</li>
-                <li>Help Center</li>
-                <li>FAQ</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2">
-                <li>Privacy Policy</li>
-                <li>Terms of Service</li>
-                <li>Security</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Connect</h3>
-              <ul className="space-y-2">
-                <li>Twitter</li>
-                <li>LinkedIn</li>
-                <li>Facebook</li>
-              </ul>
+          </div>
+          <div className="hidden lg:block">
+            <div className="relative aspect-video w-full max-w-2xl mx-auto rounded-2xl overflow-hidden shadow-xl">
+              <Image
+                src="/images/finance-hero.jpg"
+                alt="Banking Hero"
+                fill
+                className="object-cover"
+              />
             </div>
           </div>
         </div>
-      </footer>
+
+        <div className="mt-12 md:mt-16 grid md:grid-cols-2 gap-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-sm">
+            <div className="text-2xl md:text-3xl font-bold text-blue-900 mb-2">500+</div>
+            <p className="text-blue-700">Portfolios Recommended</p>
+          </div>
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-sm">
+            <div className="text-2xl md:text-3xl font-bold text-blue-900 mb-2">
+              {visitorCount.toLocaleString()}
+            </div>
+            <p className="text-blue-700">Visitors and Counting</p>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
