@@ -18,7 +18,8 @@ interface GeneratePlanRequest {
   esgPreference?: string;
 }
 
-interface GeneratePlanResponse {
+// Define a more specific type instead of using 'any'
+interface AIResponse {
   allocation: Array<{
     name: string;
     percentage: number;
@@ -26,7 +27,7 @@ interface GeneratePlanResponse {
   explanation: string;
 }
 
-function extractJSONFromText(text: string): any {
+function extractJSONFromText(text: string): AIResponse {
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
     throw new Error('No JSON found in response');
@@ -34,14 +35,14 @@ function extractJSONFromText(text: string): any {
   
   try {
     return JSON.parse(jsonMatch[0]);
-  } catch (e) {
-    throw new Error('Failed to parse JSON from response');
+  } catch (error) {
+    throw new Error(`Failed to parse JSON from response: ${(error as Error).message}`);
   }
 }
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse<AIResponse | { error: string; details?: string }>
 ) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });

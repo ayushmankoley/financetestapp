@@ -298,6 +298,40 @@ const PortfolioPlanner = () => {
     lineHeight: '24px',
   };
 
+  const renderPieLabel = ({
+    name,
+    percentage,
+    cx,
+    cy,
+    midAngle,
+    outerRadius
+  }: {
+    name: string;
+    percentage: number;
+    cx: number;
+    cy: number;
+    midAngle: number;
+    outerRadius: number;
+  }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius * 1.2;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    
+    return percentage > 0 ? (
+      <text
+        x={x}
+        y={y}
+        fill="#000000"
+        textAnchor={x > cx ? 'start' : 'end'}
+        dominantBaseline="central"
+        className="text-sm"
+      >
+        {`${percentage}%`}
+      </text>
+    ) : null;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-200 via-purple-100 to-pink-200">
       <div className="max-w-screen-2x1.1 mx-auto px-14 py-12">
