@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from "next/image";
-import { ChevronRight, PieChart, Shield, TrendingUp, ArrowRight, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 
 const LandingPage = () => {
