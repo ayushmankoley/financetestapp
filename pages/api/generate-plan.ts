@@ -18,7 +18,6 @@ interface GeneratePlanRequest {
   esgPreference?: string;
 }
 
-// Define a more specific type instead of using 'any'
 interface AIResponse {
   allocation: Array<{
     name: string;
@@ -64,14 +63,13 @@ export default async function handler(
     } = req.body as GeneratePlanRequest;
     
 
-    //prompt for Gemini API
     const prompt = `Act as an expert Indian financial advisor and generate a detailed investment portfolio allocation plan. 
 Return ONLY a JSON object (no other text) with the following structure:
 {
   "allocation": [
     {"name": "Asset Name", "percentage": numeric_value}
   ],
-  "explanation": "Detailed explanation of the allocation strategy"
+  "explanation": "Detailed explanation of the allocation strategy with proper reasoning"
 }
 
 Consider these parameters:
@@ -102,14 +100,15 @@ Requirements:
    - Real estate funds if applicable
    - Tax-saving options like ELSS if tax optimization is required
 5. Consider current Indian market conditions
-6. Explanation should include rationale for allocation based on time horizon and risk profile
-7. All percentages should be numbers (not strings) rounded to one decimal place`;
+6. Generate a max of 5 asset classes with a minimum of 4
+7. Explanation should include rationale for allocation based on time horizon and risk profile
+8. All percentages should be numbers (not strings) rounded to one decimal place`;
 
     const result = await model.generateContent(prompt);
     const response = result.response;
     const responseText = response.text();
     
-    let parsedResponse = extractJSONFromText(responseText);
+    const parsedResponse = extractJSONFromText(responseText);
 
     if (!parsedResponse.allocation || !Array.isArray(parsedResponse.allocation)) {
       throw new Error('Invalid response format from AI model');

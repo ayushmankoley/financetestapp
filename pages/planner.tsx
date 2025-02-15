@@ -26,13 +26,23 @@ const PortfolioPlanner = () => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [result, setResult] = useState(null);
-  const resultCardRef = useRef(null);
+  const [error, setError] = useState<string | null>(null);
+  interface AllocationItem {
+    name: string;
+    percentage: number;
+  }
+  
+  interface PlanResult {
+    allocation: AllocationItem[];
+    explanation: string;
+  }
+  
+  const [result, setResult] = useState<PlanResult | null>(null);
+  const resultCardRef = useRef<HTMLDivElement | null>(null);
 
   const years = Array.from({ length: 30 }, (_, i) => (i + 1).toString());
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -53,13 +63,17 @@ const PortfolioPlanner = () => {
       const data = await response.json();
       setResult(data);
     } catch (err) {
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -74,14 +88,14 @@ const PortfolioPlanner = () => {
     }));
   };
 
-  const handleRiskSelect = (risk) => {
+  const handleRiskSelect = (risk: 'low' | 'medium' | 'high') => {
     setFormData(prev => ({
       ...prev,
       riskTolerance: risk
     }));
   };
 
-  const getRiskButtonClasses = (risk) => {
+  const getRiskButtonClasses = (risk: 'low' | 'medium' | 'high') => {
     const baseClasses = "flex-1 py-2 px-4 rounded-md font-medium transition-all duration-200";
     
     if (formData.riskTolerance === risk) {
@@ -102,7 +116,6 @@ const PortfolioPlanner = () => {
     if (!resultCardRef.current || !result) return;
     
     try {
-      // Generate a timestamp for the filename
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const filename = `${formData.goalName || 'Investment-Plan'}-${timestamp}.pdf`;
       
@@ -110,43 +123,46 @@ const PortfolioPlanner = () => {
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
-      });
+      }) as jsPDF & {
+        internal: {
+          getNumberOfPages: () => number;
+          pageSize: {
+            width: number;
+            height: number;
+            getWidth: () => number;
+            getHeight: () => number;
+          };
+        };
+      };
       
-      // Set up PDF styling
       const pageWidth = pdf.internal.pageSize.getWidth();
       const margin = 15;
       const contentWidth = pageWidth - (2 * margin);
       
-      // Add header with logo-like element
-      pdf.setFillColor(59, 130, 246); // blue-500
+      pdf.setFillColor(59, 130, 246);
       pdf.rect(0, 0, pageWidth, 30, 'F');
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
       pdf.text('AI-Powered Portfolio Planner', pageWidth / 2, 15, { align: 'center' });
       
-      // Add title
       pdf.setTextColor(0, 0, 0);
       pdf.setFontSize(16);
       pdf.text(`Investment Plan: ${formData.goalName || 'Your Financial Goal'}`, pageWidth / 2, 40, { align: 'center' });
       
-      // Add plan summary section
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
       pdf.text('Plan Summary', margin, 55);
       pdf.setFont('helvetica', 'normal');
       
-      // Create summary table
-      pdf.setFillColor(245, 247, 250); // light blue-gray
+      pdf.setFillColor(245, 247, 250); 
       pdf.rect(margin, 60, contentWidth, 30, 'F');
       pdf.setDrawColor(220, 220, 220);
       pdf.rect(margin, 60, contentWidth, 30, 'S');
       
-      // Draw lines for table rows
       pdf.line(margin, 70, margin + contentWidth, 70);
       pdf.line(pageWidth / 2, 60, pageWidth / 2, 90);
       
-      // Add table content
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       pdf.text('Goal:', margin + 2, 67);
@@ -157,7 +173,6 @@ const PortfolioPlanner = () => {
       pdf.text('Monthly Contribution:', pageWidth / 2 + 2, 77);
       pdf.text('Risk Tolerance:', pageWidth / 2 + 2, 87);
       
-      // Add table values
       pdf.setTextColor(0, 0, 0);
       pdf.setFont('helvetica', 'bold');
       pdf.text(formData.goalName || '-', margin + 50, 67);
@@ -168,14 +183,12 @@ const PortfolioPlanner = () => {
       pdf.text(`$${parseInt(formData.monthlyContribution).toLocaleString() || '0'}/month`, pageWidth / 2 + 50, 77);
       pdf.text(formData.riskTolerance.charAt(0).toUpperCase() + formData.riskTolerance.slice(1), pageWidth / 2 + 50, 87);
       
-      // Add allocation title
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(12);
       pdf.text('Recommended Portfolio Allocation', margin, 105);
       
-      // Generate pie chart section
       const cardElement = resultCardRef.current;
-      const chartElement = cardElement.querySelector('.recharts-wrapper');
+      const chartElement = cardElement.querySelector('.recharts-wrapper') as HTMLElement | null;
       
       if (chartElement) {
         const canvas = await html2canvas(chartElement, {
@@ -185,17 +198,13 @@ const PortfolioPlanner = () => {
         
         const imgData = canvas.toDataURL('image/png');
         
-        // Calculate dimensions while maintaining aspect ratio
         const imgWidth = contentWidth;
         const imgHeight = canvas.height * imgWidth / canvas.width;
         
-        // Add the chart image
         pdf.addImage(imgData, 'PNG', margin, 110, imgWidth, imgHeight);
         
-        // Move current position after chart
         const yAfterChart = 110 + imgHeight + 10;
         
-        // Add allocation details
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(12);
         pdf.text('Detailed Allocation', margin, yAfterChart);
@@ -205,18 +214,15 @@ const PortfolioPlanner = () => {
         
         let yPosition = yAfterChart + 10;
         
-        // Add allocation items with color boxes
         const colors = ['#ef4444', '#22c55e', '#3b82f6', '#f97316', '#8b5cf6'];
         
         result.allocation.forEach((item, index) => {
           const colorIndex = index % colors.length;
           const { r, g, b } = hexToRgb(colors[colorIndex]);
           
-          // Create color boxes - FIXED: pass r, g, b as separate arguments
           pdf.setFillColor(r, g, b);
           pdf.rect(margin, yPosition - 4, 8, 8, 'F');
           
-          // Add allocation text
           pdf.text(`${item.name}`, margin + 15, yPosition);
           pdf.text(`${item.percentage}%`, margin + contentWidth - 20, yPosition, { align: 'right' });
           
@@ -225,7 +231,6 @@ const PortfolioPlanner = () => {
         
         yPosition += 10;
         
-        // Add strategy section if it fits on the page, otherwise add a new page
         if (yPosition > 250) {
           pdf.addPage();
           yPosition = 20;
@@ -234,42 +239,33 @@ const PortfolioPlanner = () => {
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(12);
         pdf.text('Strategy Overview', margin, yPosition);
-        yPosition += 10; // Update the yPosition after adding the title
-      
+        yPosition += 10;
+        
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(10);
-      
-        // Add strategy text with word wrapping
+        
         const explanationText = result.explanation || '';
         const splitText = pdf.splitTextToSize(explanationText, contentWidth);
         pdf.text(splitText, margin, yPosition);
       }
       
-      // Add footer with disclaimer and page numbers
       const totalPages = pdf.internal.getNumberOfPages();
       for (let i = 1; i <= totalPages; i++) {
         pdf.setPage(i);
         
-        // Add colored bottom bar - FIXED: set opacity correctly for setFillColor
-        pdf.setFillColor(59, 130, 246, 0.1); // This won't work as expected
-        
-        // Use regular color instead
-        pdf.setFillColor(232, 240, 254); // Light blue that approximates blue with 0.1 opacity
+        pdf.setFillColor(232, 240, 254);
         pdf.rect(0, pdf.internal.pageSize.getHeight() - 15, pageWidth, 15, 'F');
         
-        // Add disclaimer
         pdf.setFont('helvetica', 'italic');
         pdf.setFontSize(8);
         pdf.setTextColor(100, 100, 100);
         pdf.text('Disclaimer: This plan is for informational purposes only and does not constitute financial advice.', 
           pageWidth / 2, pdf.internal.pageSize.getHeight() - 8, { align: 'center' });
         
-        // Add page number
         pdf.setFont('helvetica', 'normal');
         pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 20, pdf.internal.pageSize.getHeight() - 8);
       }
       
-      // Save the PDF
       pdf.save(filename);
       
     } catch (err) {
@@ -278,12 +274,9 @@ const PortfolioPlanner = () => {
     }
   };
   
-  // Helper function to convert hex color to RGB
-  const hexToRgb = (hex) => {
-    // Remove the # if it exists
+  const hexToRgb = (hex: string) => {
     hex = hex.replace('#', '');
     
-    // Parse the hex values
     const r = parseInt(hex.substring(0, 2), 16);
     const g = parseInt(hex.substring(2, 4), 16);
     const b = parseInt(hex.substring(4, 6), 16);
@@ -296,40 +289,6 @@ const PortfolioPlanner = () => {
     top: '50%',
     transform: 'translateY(-50%)',
     lineHeight: '24px',
-  };
-
-  const renderPieLabel = ({
-    name,
-    percentage,
-    cx,
-    cy,
-    midAngle,
-    outerRadius
-  }: {
-    name: string;
-    percentage: number;
-    cx: number;
-    cy: number;
-    midAngle: number;
-    outerRadius: number;
-  }) => {
-    const RADIAN = Math.PI / 180;
-    const radius = outerRadius * 1.2;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-    
-    return percentage > 0 ? (
-      <text
-        x={x}
-        y={y}
-        fill="#000000"
-        textAnchor={x > cx ? 'start' : 'end'}
-        dominantBaseline="central"
-        className="text-sm"
-      >
-        {`${percentage}%`}
-      </text>
-    ) : null;
   };
 
   return (
@@ -714,7 +673,7 @@ const PortfolioPlanner = () => {
                               innerRadius={100}
                               outerRadius={160}
                               paddingAngle={4}
-                              label={({ name, percentage, cx, cy, midAngle, innerRadius, outerRadius }) => {
+                              label={({ percentage, cx, cy, midAngle, outerRadius }) => {
                                 const RADIAN = Math.PI / 180;
                                 const radius = outerRadius * 1.2;
                                 const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -738,11 +697,11 @@ const PortfolioPlanner = () => {
                                 <Cell
                                   key={entry.name}
                                   fill={[
-                                    '#ef4444', // red-500
-                                    '#22c55e', // green-500
-                                    '#3b82f6', // blue-500
-                                    '#f97316', // orange-500
-                                    '#8b5cf6'  // purple-500
+                                    '#ef4444', 
+                                    '#22c55e', 
+                                    '#3b82f6', 
+                                    '#f97316',
+                                    '#8b5cf6'
                                   ][index]}
                                 />
                               ))}
@@ -753,7 +712,7 @@ const PortfolioPlanner = () => {
                               verticalAlign="middle"
                               layout="vertical"
                               wrapperStyle={legendStyle}
-                              formatter={(value, entry, index) => (
+                              formatter={(value) => (
                                 <span style={{ color: '#374151' }}>{value}</span>
                               )}
                               iconSize={20}
@@ -787,7 +746,7 @@ const PortfolioPlanner = () => {
                       <div className="h-[500px] w-full flex items-center justify-center">
                         <div className="text-center text-slate-500 max-w-md px-4">
                           <h3 className="font-medium text-lg mb-2">No Plan Generated Yet</h3>
-                          <p>Complete the form on the left and click on "Generate Investment Plan" to see your personalized investment allocation and strategy.</p>
+                          <p>{'Complete the form on the left and click on "Generate Investment Plan" to see your personalized investment allocation and strategy.'}</p>
                         </div>
                       </div>
                     </div>

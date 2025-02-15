@@ -2,6 +2,25 @@ import React from 'react';
 import { ChevronRight, PieChart, Shield, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+// Define interface for FeatureCard props
+interface FeatureCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}
+
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => {
+  return (
+    <div className="bg-white p-8 rounded-xl shadow-lg text-center">
+      <div className="flex justify-center mb-4">
+        {icon}
+      </div>
+      <h3 className="text-xl font-semibold mb-4 text-gray-900">{title}</h3>
+      <p className="text-gray-600">{description}</p>
+    </div>
+  );
+};
+
 const LandingPage = () => {
   return (
     <div className="min-h-screen bg-white">
@@ -97,18 +116,6 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
-};
-
-const FeatureCard = ({ icon, title, description }) => {
-  return (
-    <div className="bg-white p-8 rounded-xl shadow-lg text-center">
-      <div className="flex justify-center mb-4">
-        {icon}
-      </div>
-      <h3 className="text-xl font-semibold mb-4 text-gray-900">{title}</h3>
-      <p className="text-gray-600">{description}</p>
     </div>
   );
 };
