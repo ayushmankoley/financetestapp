@@ -101,7 +101,7 @@ Requirements:
    - Tax-saving options like ELSS if tax optimization is required
 5. Consider current Indian market conditions
 6. Generate a max of 5 asset classes with a minimum of 4
-7. Explanation should include rationale for allocation based on time horizon and risk profile
+7. Explanation should include rationale for allocation based on time horizon and risk profile and not have any * and rather spaces if necesary
 8. All percentages should be numbers (not strings) rounded to one decimal place`;
 
     const result = await model.generateContent(prompt);
