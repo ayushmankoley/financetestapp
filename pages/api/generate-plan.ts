@@ -1,8 +1,6 @@
-// File: pages/api/generate-plan.ts
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-// Initialize Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
@@ -14,6 +12,10 @@ interface GeneratePlanRequest {
   riskTolerance: number;
   diversificationPreference?: string;
   monthlyContribution?: string;
+  rebalancingFrequency?: string;
+  investmentStyle?: string;
+  taxOptimization?: string;
+  esgPreference?: string;
 }
 
 interface GeneratePlanResponse {
@@ -25,7 +27,6 @@ interface GeneratePlanResponse {
 }
 
 function extractJSONFromText(text: string): any {
-  // Try to find JSON content between curly braces
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
     throw new Error('No JSON found in response');
@@ -54,56 +55,71 @@ export default async function handler(
       timePeriod,
       riskTolerance,
       diversificationPreference,
-      monthlyContribution
+      monthlyContribution,
+      rebalancingFrequency,  
+      investmentStyle,       
+      taxOptimization,       
+      esgPreference          
     } = req.body as GeneratePlanRequest;
+    
 
-    // Construct prompt for Gemini API
-    const prompt = `Act as a financial advisor and generate an investment portfolio allocation plan. 
-    Return ONLY a JSON object (no other text) with the following structure:
-    {
-      "allocation": [
-        {"name": "Asset Class Name", "percentage": numeric_value}
-      ],
-      "explanation": "Brief explanation of the allocation strategy"
-    }
+    //prompt for Gemini API
+    const prompt = `Act as an expert Indian financial advisor and generate a detailed investment portfolio allocation plan. 
+Return ONLY a JSON object (no other text) with the following structure:
+{
+  "allocation": [
+    {"name": "Asset Name", "percentage": numeric_value}
+  ],
+  "explanation": "Detailed explanation of the allocation strategy"
+}
 
-    Consider these parameters:
-    - Initial Investment: $${initialAmount}
-    - Target Goal: $${goalAmount}
-    - Goal Name: ${goalName}
-    - Time Period: ${timePeriod} years
-    - Risk Tolerance: ${riskTolerance}% (0 = Conservative, 100 = Aggressive)
-    ${monthlyContribution ? `- Monthly Contribution: $${monthlyContribution}` : ''}
-    ${diversificationPreference ? `- Special Requirements: ${diversificationPreference}` : ''}
+Consider these parameters:
+- Initial Investment: ₹${initialAmount}
+- Target Goal: ₹${goalAmount}
+- Goal Name: ${goalName}
+- Time Period: ${timePeriod} years
+- Risk Tolerance: ${riskTolerance}% (0 = Conservative, 100 = Aggressive)
+${monthlyContribution ? `- Monthly Contribution: ₹${monthlyContribution}` : ''}
+${diversificationPreference ? `- Investment Preferences: ${diversificationPreference}` : ''}
+${rebalancingFrequency ? `- Rebalancing Frequency: ${rebalancingFrequency}` : ''}
+${investmentStyle ? `- Investment Style: ${investmentStyle}` : ''}
+${taxOptimization ? `- Tax Optimization: ${taxOptimization}` : ''}
+${esgPreference ? `- ESG Preference: ${esgPreference}` : ''}
 
-    Important:
-    1. Return ONLY the JSON object, no markdown formatting or backticks
-    2. Ensure percentages sum to 100
-    3. Use real asset class names (e.g., "US Large Cap Stocks", "Government Bonds")
-    4. This response should be for Indian customers/market
-    5, I also want specific Assets names like sensex or tat mutual funds instead of vague terms like Mid cap, Large cap etc.
-    5. Percentages should be numbers, not strings`;
+Requirements:
+1. Return ONLY valid JSON, no additional text or formatting
+2. Total allocation must sum to exactly 100%
+3. Use SPECIFIC Indian mutual funds and ETFs, for example:
+   - "Equity Shares - Tata Mutual Fund - Large Cap"
+   - "Debt Funds - HDFC Corporate Bond Fund"
+   - "Gold - Sovereign Gold Bond"
+   - "Real Estate - Rental Property"
+4. Include a mix of:
+   - Equity mutual funds (large, mid, small cap)
+   - Debt instruments
+   - Gold or commodity funds
+   - Real estate funds if applicable
+   - Tax-saving options like ELSS if tax optimization is required
+5. Consider current Indian market conditions
+6. Explanation should include rationale for allocation based on time horizon and risk profile
+7. All percentages should be numbers (not strings) rounded to one decimal place`;
 
-    // Call Gemini API
     const result = await model.generateContent(prompt);
     const response = result.response;
     const responseText = response.text();
     
-    // Extract and parse JSON from response
     let parsedResponse = extractJSONFromText(responseText);
 
-    // Validate the response structure
     if (!parsedResponse.allocation || !Array.isArray(parsedResponse.allocation)) {
       throw new Error('Invalid response format from AI model');
     }
 
-    // Ensure percentages sum to 100%
     const total = parsedResponse.allocation.reduce(
       (sum: number, item: { percentage: number }) => sum + item.percentage, 
       0
     );
     
-    if (Math.abs(total - 100) > 0.1) { // Allow for small floating-point differences
+    if (Math.abs(total - 100) > 0.1) { 
       parsedResponse.allocation = parsedResponse.allocation.map(
         (item: { name: string; percentage: number }) => ({
           ...item,
@@ -112,7 +128,6 @@ export default async function handler(
       );
     }
 
-    // Round percentages to 1 decimal place
     parsedResponse.allocation = parsedResponse.allocation.map(
       (item: { name: string; percentage: number }) => ({
         ...item,

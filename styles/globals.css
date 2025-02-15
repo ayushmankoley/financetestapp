@@ -100,3 +100,10 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.slider-thumb {
+  background-color: black !important;
+  border-radius: 9999px; /* Fully circular */
+  width: 24px; /* Ensure correct size */
+  height: 24px;
+}
