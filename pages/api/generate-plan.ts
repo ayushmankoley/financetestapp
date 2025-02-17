@@ -9,13 +9,13 @@ interface GeneratePlanRequest {
   goalAmount: string;
   goalName: string;
   timePeriod: string;
-  riskTolerance: number;
+  riskTolerance: string;
   diversificationPreference?: string;
   monthlyContribution?: string;
   rebalancingFrequency?: string;
   investmentStyle?: string;
   taxOptimization?: string;
-  esgPreference?: string;
+  cryptoPreference?: string;
 }
 
 interface AIResponse {
@@ -59,7 +59,7 @@ export default async function handler(
       rebalancingFrequency,  
       investmentStyle,       
       taxOptimization,       
-      esgPreference          
+      cryptoPreference          
     } = req.body as GeneratePlanRequest;
     
 
@@ -77,13 +77,13 @@ Consider these parameters:
 - Target Goal: ₹${goalAmount}
 - Goal Name: ${goalName}
 - Time Period: ${timePeriod} years
-- Risk Tolerance: ${riskTolerance}% (0 = Conservative, 100 = Aggressive)
+- Risk Tolerance: ${riskTolerance.charAt(0).toUpperCase() + riskTolerance.slice(1)} (Low/Medium/High)
 ${monthlyContribution ? `- Monthly Contribution: ₹${monthlyContribution}` : ''}
 ${diversificationPreference ? `- Investment Preferences: ${diversificationPreference}` : ''}
 ${rebalancingFrequency ? `- Rebalancing Frequency: ${rebalancingFrequency}` : ''}
-${investmentStyle ? `- Investment Style: ${investmentStyle}` : ''}
+${investmentStyle ? `- Investment Fund Style: ${investmentStyle}` : ''}
 ${taxOptimization ? `- Tax Optimization: ${taxOptimization}` : ''}
-${esgPreference ? `- ESG Preference: ${esgPreference}` : ''}
+${cryptoPreference ? `- Crypto Preference: ${cryptoPreference}` : ''}
 
 Requirements:
 1. Return ONLY valid JSON, no additional text or formatting
@@ -92,16 +92,15 @@ Requirements:
    - "Equity Shares - Tata Mutual Fund - Large Cap"
    - "Debt Funds - HDFC Corporate Bond Fund"
    - "Gold - Sovereign Gold Bond"
-   - "Real Estate - Rental Property"
 4. Include a mix of:
    - Equity mutual funds (large, mid, small cap)
    - Debt instruments
    - Gold or commodity funds
-   - Real estate funds if applicable
-   - Tax-saving options like ELSS if tax optimization is required
+   - one Crypto coin if selected YES in form (eg: BTC for low risk, SOL/ETH for medium risk, SUI/HYPE/APT/POL/JUP etc for high risk) 
 5. Consider current Indian market conditions
 6. Generate a max of 5 asset classes with a minimum of 4
-7. Explanation should include rationale for allocation based on time horizon and risk profile and not have any * and rather spaces if necesary
+7. Explanation should include rationale for allocation point wise based on time horizon and risk profile and not have any * and instead - and dont try bold the text with ** and add paragraphs if necesary be as much detailed as possible
+8. If the user asks for unrealistic return expectations, provide a warning in the explanation
 8. All percentages should be numbers (not strings) rounded to one decimal place`;
 
     const result = await model.generateContent(prompt);
@@ -138,9 +137,9 @@ Requirements:
     return res.status(200).json(parsedResponse);
 
   } catch (error) {
-    console.error('Error generating investment plan:', error);
+    console.error('Error generating investment plan, Please Try Again!', error);
     return res.status(500).json({
-      error: 'Failed to generate investment plan',
+      error: 'Failed to generate investment plan, Please Try Again!',
       details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
     });
   }
