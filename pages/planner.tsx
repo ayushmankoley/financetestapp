@@ -39,6 +39,7 @@ const PortfolioPlanner = () => {
   }
   
   const [result, setResult] = useState<PlanResult | null>(null);
+  const [windowWidth, setWindowWidth] = useState(0);
   useEffect(() => {
     setWindowWidth(window.innerWidth);
     const handleResize = () => {
@@ -241,7 +242,7 @@ const PortfolioPlanner = () => {
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(12);
         pdf.text('Detailed Allocation', margin, yAfterChart);
-        const yPosition = yAfterChart + 10;
+        var yPosition = yAfterChart + 10;
         
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(10);
