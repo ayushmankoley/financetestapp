@@ -39,16 +39,6 @@ const PortfolioPlanner = () => {
   }
   
   const [result, setResult] = useState<PlanResult | null>(null);
-  const [windowWidth, setWindowWidth] = useState(0);
-  useEffect(() => {
-    setWindowWidth(window.innerWidth);
-    const handleResize = () => {
-        setWindowWidth(window.innerWidth);
-      };
-    
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }, []);
   
 
   const resultCardRef = useRef<HTMLDivElement | null>(null);
@@ -709,8 +699,8 @@ const PortfolioPlanner = () => {
                               nameKey="name"
                               cx="50%"
                               cy="40%" // Adjust vertical center for mobile
-                              innerRadius={window.innerWidth < 768 ? 40 : 60}
-                              outerRadius={window.innerWidth < 768 ? 70 : 120}
+                              innerRadius="25%"  // Changed from window.innerWidth dependent value
+                              outerRadius="50%"  // Changed from window.innerWidth dependent value
                               paddingAngle={4}
                               label={({ percentage }) => (
                                 percentage > 1 ? `${percentage}%` : ''
@@ -737,7 +727,7 @@ const PortfolioPlanner = () => {
                               iconSize={12}
                               wrapperStyle={{
                                 bottom: 0,
-                                fontSize: window.innerWidth < 768 ? '10px' : '16px',
+                                fontSize: '14px',  // Changed from window.innerWidth dependent value
                                 width: '100%',
                                 paddingTop: '10px',
                               }}
