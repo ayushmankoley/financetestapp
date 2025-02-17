@@ -5,16 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { ChevronDown, ChevronUp, AlertCircle, DollarSign, Target, Clock, BarChart, Wallet, TrendingUp, Download } from 'lucide-react';
+import { ChevronDown, ChevronUp, AlertCircle, IndianRupee, Target, Clock, BarChart, Wallet, TrendingUp, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+
 
 const PortfolioPlanner = () => {
   const [formData, setFormData] = useState({
     rebalancingFrequency: 'quarterly',
-    investmentStyle: 'passive',
+    investmentStyle: 'noPreference',
     taxOptimization: 'taxEfficient',
-    esgPreference: 'none',
+    cryptoPreference: 'No',
     initialAmount: '',
     goalAmount: '',
     goalName: '',
@@ -38,6 +39,8 @@ const PortfolioPlanner = () => {
   }
   
   const [result, setResult] = useState<PlanResult | null>(null);
+  
+
   const resultCardRef = useRef<HTMLDivElement | null>(null);
 
   const years = Array.from({ length: 30 }, (_, i) => (i + 1).toString());
@@ -57,7 +60,7 @@ const PortfolioPlanner = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate investment plan');
+        throw new Error('Failed to generate investment plan, Please Try Again!');
       }
 
       const data = await response.json();
@@ -136,87 +139,119 @@ const PortfolioPlanner = () => {
       };
       
       const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 15;
       const contentWidth = pageWidth - (2 * margin);
       
+      // Reduced header height from 30 to 25
       pdf.setFillColor(59, 130, 246);
-      pdf.rect(0, 0, pageWidth, 30, 'F');
+      pdf.rect(0, 0, pageWidth, 15, 'F');
       pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(20);
+      pdf.setFontSize(18);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('AI-Powered Portfolio Planner', pageWidth / 2, 15, { align: 'center' });
+      pdf.text('AI-Powered Portfolio Planner - By Kautilya', pageWidth / 2, 10, { align: 'center' });
       
       pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(16);
-      pdf.text(`Investment Plan: ${formData.goalName || 'Your Financial Goal'}`, pageWidth / 2, 40, { align: 'center' });
+      pdf.setFontSize(18); // Reduced from 16
+      pdf.text(`Investment Plan: ${formData.goalName || 'Your Financial Goal'}`, pageWidth / 2, 30, { align: 'center' });
       
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Plan Summary', margin, 55);
+      pdf.text('Plan Summary', margin, 40); // Adjusted from 55
       pdf.setFont('helvetica', 'normal');
       
       pdf.setFillColor(245, 247, 250); 
-      pdf.rect(margin, 60, contentWidth, 30, 'F');
+      pdf.rect(margin, 45, contentWidth, 30, 'F'); // Adjusted from 60
       pdf.setDrawColor(220, 220, 220);
-      pdf.rect(margin, 60, contentWidth, 30, 'S');
+      pdf.rect(margin, 45, contentWidth, 30, 'S'); // Adjusted from 60
       
-      pdf.line(margin, 70, margin + contentWidth, 70);
-      pdf.line(pageWidth / 2, 60, pageWidth / 2, 90);
+      pdf.line(margin, 55, margin + contentWidth, 55); // Adjusted from 70
+      pdf.line(pageWidth / 2, 45, pageWidth / 2, 75); // Adjusted from 60, 90
       
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
-      pdf.text('Goal:', margin + 2, 67);
-      pdf.text('Initial Investment:', margin + 2, 77);
-      pdf.text('Timeline:', margin + 2, 87);
+      pdf.text('Goal:', margin + 2, 52); // Adjusted from 67
+      pdf.text('Initial Investment:', margin + 2, 62); // Adjusted from 77
+      pdf.text('Timeline:', margin + 2, 72); // Adjusted from 87
       
-      pdf.text('Target Amount:', pageWidth / 2 + 2, 67);
-      pdf.text('Monthly Contribution:', pageWidth / 2 + 2, 77);
-      pdf.text('Risk Tolerance:', pageWidth / 2 + 2, 87);
+      pdf.text('Target Amount:', pageWidth / 2 + 2, 52); // Adjusted from 67
+      pdf.text('Monthly Contribution:', pageWidth / 2 + 2, 62); // Adjusted from 77
+      pdf.text('Risk Tolerance:', pageWidth / 2 + 2, 72); // Adjusted from 87
       
       pdf.setTextColor(0, 0, 0);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(formData.goalName || '-', margin + 50, 67);
-      pdf.text(`$${parseInt(formData.initialAmount).toLocaleString() || '0'}`, margin + 50, 77);
-      pdf.text(`${formData.timePeriod || '0'} years`, margin + 50, 87);
+      pdf.text(formData.goalName || '-', margin + 50, 52); // Adjusted from 67
+      pdf.text(`Rs ${parseInt(formData.initialAmount).toLocaleString() || '0'}`, margin + 50, 62); // Adjusted from 77
+      pdf.text(`${formData.timePeriod || '0'} years`, margin + 50, 72); // Adjusted from 87
       
-      pdf.text(`$${parseInt(formData.goalAmount).toLocaleString() || '0'}`, pageWidth / 2 + 50, 67);
-      pdf.text(`$${parseInt(formData.monthlyContribution).toLocaleString() || '0'}/month`, pageWidth / 2 + 50, 77);
-      pdf.text(formData.riskTolerance.charAt(0).toUpperCase() + formData.riskTolerance.slice(1), pageWidth / 2 + 50, 87);
+      pdf.text(`Rs ${parseInt(formData.goalAmount).toLocaleString() || '0'}`, pageWidth / 2 + 50, 52); // Adjusted from 67
+      pdf.text(`Rs ${parseInt(formData.monthlyContribution).toLocaleString() || '0'}/month`, pageWidth / 2 + 50, 62); // Adjusted from 77
+      pdf.text(formData.riskTolerance.charAt(0).toUpperCase() + formData.riskTolerance.slice(1), pageWidth / 2 + 50, 72); // Adjusted from 87
       
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(12);
-      pdf.text('Recommended Portfolio Allocation', margin, 105);
+      pdf.text('Recommended Portfolio Allocation', margin, 90); // Adjusted from 105
       
       const cardElement = resultCardRef.current;
       const chartElement = cardElement.querySelector('.recharts-wrapper') as HTMLElement | null;
       
       if (chartElement) {
+        // Capture chart with improved settings
         const canvas = await html2canvas(chartElement, {
           scale: 2,
-          backgroundColor: '#FFFFFF'
+          backgroundColor: '#FFFFFF',
+          logging: false,
+          useCORS: true,
+          ignoreElements: (element) => {
+            return element.classList.contains('recharts-legend-wrapper');
+          }
         });
         
         const imgData = canvas.toDataURL('image/png');
         
+        // Calculate appropriate image size while maintaining aspect ratio
+        const maxImgHeight = 130; // Increased chart height limit
         const imgWidth = contentWidth;
-        const imgHeight = canvas.height * imgWidth / canvas.width;
+        let imgHeight = canvas.height * imgWidth / canvas.width;
         
-        pdf.addImage(imgData, 'PNG', margin, 110, imgWidth, imgHeight);
+        // Ensure the chart doesn't exceed our maximum height
+        if (imgHeight > maxImgHeight) {
+          imgHeight = maxImgHeight;
+          // Recalculate width to maintain aspect ratio
+          const newWidth = canvas.width * imgHeight / canvas.height;
+          // Center the image
+          const leftMargin = margin + (contentWidth - newWidth) / 2;
+          pdf.addImage(imgData, 'PNG', leftMargin, 90, newWidth, imgHeight);
+        } else {
+          pdf.addImage(imgData, 'PNG', margin, 90, imgWidth, imgHeight);
+        }
         
-        const yAfterChart = 110 + imgHeight + 10;
+        const yAfterChart = 70 + imgHeight;
         
+        // Always put Detailed Allocation on current page
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(12);
         pdf.text('Detailed Allocation', margin, yAfterChart);
+        let yPosition = yAfterChart + 10;
         
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(10);
         
-        let yPosition = yAfterChart + 10;
-        
         const colors = ['#ef4444', '#22c55e', '#3b82f6', '#f97316', '#8b5cf6'];
         
+        // Helper function to check if we need a new page
+        const checkForNewPage = (currentY: number, neededSpace: number) => {
+          if (currentY + neededSpace > pageHeight - 25) {
+            pdf.addPage();
+            return 20; // Return starting Y position for new page
+          }
+          return currentY;
+        };
+        
+        // Draw allocation items
         result.allocation.forEach((item, index) => {
+          yPosition = checkForNewPage(yPosition, 15);
+          
           const colorIndex = index % colors.length;
           const { r, g, b } = hexToRgb(colors[colorIndex]);
           
@@ -229,12 +264,9 @@ const PortfolioPlanner = () => {
           yPosition += 10;
         });
         
-        yPosition += 10;
-        
-        if (yPosition > 250) {
-          pdf.addPage();
-          yPosition = 20;
-        }
+        // Always start Strategy Overview on a new page
+        pdf.addPage();
+        yPosition = 20;
         
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(12);
@@ -246,9 +278,11 @@ const PortfolioPlanner = () => {
         
         const explanationText = result.explanation || '';
         const splitText = pdf.splitTextToSize(explanationText, contentWidth);
+        
         pdf.text(splitText, margin, yPosition);
       }
       
+      // Add footer to all pages
       const totalPages = pdf.internal.getNumberOfPages();
       for (let i = 1; i <= totalPages; i++) {
         pdf.setPage(i);
@@ -261,6 +295,8 @@ const PortfolioPlanner = () => {
         pdf.setTextColor(100, 100, 100);
         pdf.text('Disclaimer: This plan is for informational purposes only and does not constitute financial advice.', 
           pageWidth / 2, pdf.internal.pageSize.getHeight() - 8, { align: 'center' });
+        pdf.text('© 2025 Kautilya. All rights reserved.', 
+          pageWidth / 2, pdf.internal.pageSize.getHeight() - 5, { align: 'center' });
         
         pdf.setFont('helvetica', 'normal');
         pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 20, pdf.internal.pageSize.getHeight() - 8);
@@ -282,13 +318,6 @@ const PortfolioPlanner = () => {
     const b = parseInt(hex.substring(4, 6), 16);
     
     return { r, g, b };
-  };
-
-  const legendStyle = {
-    right: 0,
-    top: '50%',
-    transform: 'translateY(-50%)',
-    lineHeight: '24px',
   };
 
   return (
@@ -328,7 +357,7 @@ const PortfolioPlanner = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                          <DollarSign className="w-4 h-4" />
+                          <IndianRupee className="w-4 h-4" />
                           Initial Investment
                         </label>
                         <div className="relative">
@@ -341,7 +370,7 @@ const PortfolioPlanner = () => {
                             required
                             className="pl-8"
                           />
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
                         </div>
                       </div>
 
@@ -360,7 +389,7 @@ const PortfolioPlanner = () => {
                             required
                             className="pl-8"
                           />
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
                         </div>
                       </div>
                     </div>
@@ -485,26 +514,6 @@ const PortfolioPlanner = () => {
                             </Select>
                           </div>
 
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700">
-                              Investment Style
-                            </label>
-                            <Select 
-                              value={formData.investmentStyle}
-                              onValueChange={(value) => handleInputChange({
-                                target: { name: 'investmentStyle', value }
-                              })}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select style" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="passive">Passive</SelectItem>
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="blend">Blend</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
 
                           <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-700">
@@ -529,22 +538,42 @@ const PortfolioPlanner = () => {
 
                           <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-700">
-                              ESG Preferences
+                              Include Cryptocurrency?
                             </label>
                             <Select 
-                              value={formData.esgPreference}
+                              value={formData.cryptoPreference}
                               onValueChange={(value) => handleInputChange({
-                                target: { name: 'esgPreference', value }
+                                target: { name: 'cryptoPreference', value }
                               })}
                             >
                               <SelectTrigger>
-                                <SelectValue placeholder="Select ESG preference" />
+                                <SelectValue placeholder="Crypto Inclusion" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="high">High</SelectItem>
-                                <SelectItem value="moderate">Moderate</SelectItem>
-                                <SelectItem value="low">Low</SelectItem>
-                                <SelectItem value="none">None</SelectItem>
+                                <SelectItem value="No">No</SelectItem>
+                                <SelectItem value="Yes">Yes</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">
+                              Fund Management Style
+                            </label>
+                            <Select 
+                              value={formData.investmentStyle}
+                              onValueChange={(value) => handleInputChange({
+                                target: { name: 'investmentStyle', value }
+                              })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select management style" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="indexFunds">Index Funds</SelectItem>
+                                <SelectItem value="activeFunds">Actively Managed Funds</SelectItem>
+                                <SelectItem value="hybridFunds">Hybrid Funds</SelectItem>
+                                <SelectItem value="noPreference">No Preference</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -564,7 +593,7 @@ const PortfolioPlanner = () => {
                                 placeholder="Enter monthly amount"
                                 className="pl-8"
                               />
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
                             </div>
                           </div>
 
@@ -638,20 +667,20 @@ const PortfolioPlanner = () => {
                   {result ? (
                     <div className="space-y-6">
                       {/* Summary section */}
-                      <div className="bg-slate-50 rounded-lg p-4 space-y-2">
-                        <h4 className="font-semibold text-slate-900">Plan Summary</h4>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="bg-slate-50 rounded-lg p-3 md:p-4 space-y-1 md:space-y-2">
+                        <h4 className="font-semibold text-slate-900 text-sm md:text-base">Plan Summary</h4>
+                        <div className="grid grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
                           <div>
                             <span className="text-slate-500">Goal:</span>
                             <p className="font-medium">{formData.goalName}</p>
                           </div>
                           <div>
                             <span className="text-slate-500">Initial Investment:</span>
-                            <p className="font-medium">${parseInt(formData.initialAmount).toLocaleString()}</p>
+                            <p className="font-medium">₹{parseInt(formData.initialAmount).toLocaleString()}</p>
                           </div>
                           <div>
                             <span className="text-slate-500">Target Amount:</span>
-                            <p className="font-medium">${parseInt(formData.goalAmount).toLocaleString()}</p>
+                            <p className="font-medium">₹{parseInt(formData.goalAmount).toLocaleString()}</p>
                           </div>
                           <div>
                             <span className="text-slate-500">Timeline:</span>
@@ -661,37 +690,21 @@ const PortfolioPlanner = () => {
                       </div>
                       
                       {/* Pie Chart with modified layout */}
-                      <div className="h-[500px] w-full">
+                      <div className="relative h-72 w-full lg:h-[500px]">
                         <ResponsiveContainer width="100%" height="100%">
-                          <PieChart margin={{ top: 20, right: 100, bottom: 20, left: 80 }}>
+                          <PieChart>
                             <Pie
                               data={result.allocation}
                               dataKey="percentage"
                               nameKey="name"
                               cx="50%"
-                              cy="50%"
-                              innerRadius={100}
-                              outerRadius={160}
+                              cy="40%" // Adjust vertical center for mobile
+                              innerRadius="25%"  // Changed from window.innerWidth dependent value
+                              outerRadius="50%"  // Changed from window.innerWidth dependent value
                               paddingAngle={4}
-                              label={({ percentage, cx, cy, midAngle, outerRadius }) => {
-                                const RADIAN = Math.PI / 180;
-                                const radius = outerRadius * 1.2;
-                                const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                                const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                                
-                                return percentage > 0 ? (
-                                  <text
-                                    x={x}
-                                    y={y}
-                                    fill="#000000"
-                                    textAnchor={x > cx ? 'start' : 'end'}
-                                    dominantBaseline="central"
-                                    className="text-sm"
-                                  >
-                                    {`${percentage}%`}
-                                  </text>
-                                ) : null;
-                              }}
+                              label={({ percentage }) => (
+                                percentage > 1 ? `${percentage}%` : ''
+                              )}
                             >
                               {result.allocation.map((entry, index) => (
                                 <Cell
@@ -702,35 +715,37 @@ const PortfolioPlanner = () => {
                                     '#3b82f6', 
                                     '#f97316',
                                     '#8b5cf6'
-                                  ][index]}
+                                  ][index % 5]}
                                 />
                               ))}
                             </Pie>
                             <Tooltip />
                             <Legend
-                              align="right"
+                              layout="horizontal"
+                              align="center"
                               verticalAlign="middle"
-                              layout="vertical"
-                              wrapperStyle={legendStyle}
-                              formatter={(value) => (
-                                <span style={{ color: '#374151' }}>{value}</span>
-                              )}
-                              iconSize={20}
+                              iconSize={12}
+                              wrapperStyle={{
+                                bottom: 0,
+                                fontSize: '14px',  // Changed from window.innerWidth dependent value
+                                width: '100%',
+                                paddingTop: '10px',
+                              }}
                             />
                           </PieChart>
                         </ResponsiveContainer>
                       </div>
 
                       {/* Allocation Details */}
-                      <div className="space-y-3">
-                        <h4 className="font-semibold text-slate-900">Detailed Allocation</h4>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-slate-900 text-sm md:text-base">Detailed Allocation</h4>
                         {result.allocation.map((item) => (
                           <div
                             key={item.name}
-                            className="flex justify-between items-center py-2 border-b border-slate-100 last:border-0"
+                            className="flex justify-between items-center py-1 md:py-2 border-b border-slate-100 last:border-0"
                           >
-                            <span className="text-slate-700">{item.name}</span>
-                            <span className="font-semibold">{item.percentage}%</span>
+                            <span className="text-slate-700 text-xs md:text-sm">{item.name}</span>
+                            <span className="font-semibold text-xs md:text-sm">{item.percentage}%</span>
                           </div>
                         ))}
                       </div>
