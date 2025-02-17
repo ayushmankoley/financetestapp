@@ -241,7 +241,7 @@ const PortfolioPlanner = () => {
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(12);
         pdf.text('Detailed Allocation', margin, yAfterChart);
-        var yPosition = yAfterChart + 10;
+        const yPosition = yAfterChart + 10;
         
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(10);
