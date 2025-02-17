@@ -39,7 +39,6 @@ const PortfolioPlanner = () => {
   }
   
   const [result, setResult] = useState<PlanResult | null>(null);
-  const [windowWidth, setWindowWidth] = useState(0);
   useEffect(() => {
     setWindowWidth(window.innerWidth);
     const handleResize = () => {
@@ -328,13 +327,6 @@ const PortfolioPlanner = () => {
     const b = parseInt(hex.substring(4, 6), 16);
     
     return { r, g, b };
-  };
-
-  const legendStyle = {
-    right: 0,
-    top: '50%',
-    transform: 'translateY(-50%)',
-    lineHeight: '24px',
   };
 
   return (
