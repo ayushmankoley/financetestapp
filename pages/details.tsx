@@ -1,46 +1,46 @@
 import React, {useState,useRef} from 'react'
+import { useEffect } from 'react';
 import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button';
 export default function details() {
     
     // const params = useParams();
     // const {id} = params;
-
-    const equityShares = [
-        { name: "Apple Inc.", weight: "25%" },
-        { name: "Microsoft", weight: "20%" },
-        { name: "Tesla", weight: "15%" },
-        { name: "Google", weight: "15%" },
-        { name: "Amazon", weight: "10%" },
-        { name: "Nvidia", weight: "15%" },
-
-      ];
+    const [details,setdetails] = useState();
+    useEffect(() => {
+        try {
+          const storedRequest = localStorage.getItem("apiResponse");
       
-      const debtFunds = [
-        { name: "HDFC Corporate Bond Fund", weight: "30%" },
-        { name: "SBI Dynamic Bond Fund", weight: "20%" },
-        { name: "ICICI Pru Gilt Fund", weight: "20%" },
-        { name: "Kotak Debt Fund", weight: "15%" },
-        { name: "Axis Treasury Advantage", weight: "10%" },
-        { name: "Franklin India Ultra Short Bond", weight: "5%" }
-      ];
-      
-      const goldETFs = [
-        { name: "Nippon India Gold ETF", weight: "40%" },
-        { name: "HDFC Gold ETF", weight: "25%" },
-        { name: "SBI Gold ETF", weight: "15%" },
-        { name: "ICICI Prudential Gold ETF", weight: "10%" },
-        { name: "Axis Gold ETF", weight: "5%" },
-        { name: "Aditya Birla Sun Life Gold ETF", weight: "5%" }
-      ];
+          if (storedRequest) {
+            const requestBody = storedRequest; // Ensure valid JSON format
+            console.log(storedRequest);
+            fetch("/api/detail-show", {
+              method: "POST", 
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(requestBody) // Convert back to JSON string
+            })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then(data => {
+              console.log("Response Data:", data);
+              setdetails(data);
 
-      const mutualFunds = [
-        { name: "HDFC Equity Fund", weight: "20%" },
-        { name: "SBI Bluechip Fund", weight: "18%" },
-        { name: "Axis Long Term Equity", weight: "15%" },
-        { name: "ICICI Prudential Value Discovery Fund", weight: "22%" },
-        { name: "Kotak Emerging Equity Fund", weight: "25%" }
-      ];
+            })
+            .catch(error => {
+              console.error("Fetch error:", error);
+            });
+          }
+        } catch (e) {
+          console.error("Error accessing localStorage:", e);
+        }
+      }, []);
+
       
 
     return (
@@ -59,84 +59,29 @@ export default function details() {
         </div>
       
         {/* Grid Layout with Cards */}
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-  {/* Equity Shares Card */}
-  <div className="bg-white/70 backdrop-blur-md p-6 rounded-lg shadow-md">
-    <h2 className="text-2xl font-bold text-slate-900 mb-2">Equity Shares</h2>
-    <p className="text-slate-700 mb-4">
-      Explore diversified investment opportunities tailored to your risk appetite and financial goals.
-    </p>
-    <ul className="text-left text-slate-800 space-y-2">
-      {equityShares.map((share, index) => (
-        <li key={index} className="flex justify-between font-semibold py-2">
-          <span>{share.name}</span> 
-          <span className="text-blue-600">{share.weight}</span>
-        </li>
+      {Object.entries(details || {}).map(([category, items]) => (
+        <div key={category} className="bg-white/70 backdrop-blur-md p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">{category}</h2>
+          <p className="text-slate-700 mb-4">Investment insights for {category}.</p>
+          <ul className="text-left text-slate-800 space-y-2">
+              {Array.isArray(items) ? (
+                items.map((item, index) => (
+                  <li key={index} className="flex justify-between font-semibold py-2">
+                    <span>{item.name}</span>
+                    <span className="text-blue-600">{item.weight}</span>
+                  </li>
+                ))
+              ) : (
+                <li className="text-gray-500">No data available</li>
+              )}
+            </ul>
+          <button className="w-full bg-blue-600 hover:bg-blue-800 text-white py-4 text-lg mt-8 rounded-lg">
+            Advanced Analysis
+          </button>
+        </div>
       ))}
-    </ul>
-    <Button className="w-full bg-blue-600 hover:bg-blue-800 text-white py-6 text-lg mt-8">
-      Advanced Analysis
-    </Button>
-  </div>
-
-  {/* Debt Funds Card */}
-  <div className="bg-white/70 backdrop-blur-md p-6 rounded-lg shadow-md">
-    <h2 className="text-2xl font-bold text-slate-900 mb-2">Debt Funds</h2>
-    <p className="text-slate-700 mb-4">
-      Get real-time insights and detailed analytics on market trends and financial movements.
-    </p>
-    <ul className="text-left text-slate-800 space-y-2">
-      {debtFunds.map((fund, index) => (
-        <li key={index} className="flex justify-between font-semibold py-2">
-          <span>{fund.name}</span> 
-          <span className="text-green-600">{fund.weight}</span>
-        </li>
-      ))}
-    </ul>
-    <Button className="w-full bg-blue-600 hover:bg-blue-800 text-white py-6 text-lg mt-8">
-      Advanced Analysis
-    </Button>
-  </div>
-
-  {/* Gold ETFs Card */}
-  <div className="bg-white/70 backdrop-blur-md p-6 rounded-lg shadow-md">
-    <h2 className="text-2xl font-bold text-slate-900 mb-2">Gold ETFs</h2>
-    <p className="text-slate-700 mb-4">
-      Evaluate the potential risks associated with your investments and secure your financial future.
-    </p>
-    <ul className="text-left text-slate-800 space-y-2">
-      {goldETFs.map((etf, index) => (
-        <li key={index} className="flex justify-between font-semibold py-2">
-          <span>{etf.name}</span> 
-          <span className="text-yellow-600">{etf.weight}</span>
-        </li>
-      ))}
-    </ul>
-    <Button className="w-full bg-blue-600 hover:bg-blue-800 text-white py-6 text-lg mt-8">
-      Advanced Analysis
-    </Button>
-  </div>
-
-  {/* Mutual Funds Card */}
-  <div className="bg-white/70 backdrop-blur-md p-6 rounded-lg shadow-md">
-    <h2 className="text-2xl font-bold text-slate-900 mb-2">Mutual Funds</h2>
-    <p className="text-slate-700 mb-4">
-      Discover a range of mutual funds designed to help you achieve long-term financial stability.
-    </p>
-    <ul className="text-left text-slate-800 space-y-2">
-      {mutualFunds.map((fund, index) => (
-        <li key={index} className="flex justify-between font-semibold py-2">
-          <span>{fund.name}</span> 
-          <span className="text-purple-600">{fund.weight}</span>
-        </li>
-      ))}
-    </ul>
-    <Button className="w-full bg-blue-600 hover:bg-blue-800 text-white py-6 text-lg mt-8">
-      Advanced Analysis
-    </Button>
-  </div>
-</div>
+    </div>
 
 
       </div>

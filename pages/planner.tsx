@@ -66,6 +66,8 @@ const PortfolioPlanner = () => {
 
       const data = await response.json();
       setResult(data);
+      localStorage.setItem("apiResponse",data);
+      console.log(data);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
