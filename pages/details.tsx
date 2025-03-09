@@ -2,11 +2,13 @@ import React, {useState,useRef} from 'react'
 import { useEffect } from 'react';
 import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button';
+import { useRouter } from "next/navigation";
 export default function details() {
     
     // const params = useParams();
     // const {id} = params;
     const [details,setdetails] = useState();
+    const router = useRouter();
     useEffect(() => {
         try {
           const storedRequest = localStorage.getItem("apiResponse");
@@ -30,7 +32,7 @@ export default function details() {
             .then(data => {
               console.log("Response Data:", data);
               setdetails(data);
-
+              localStorage.removeItem("apiResponse");
             })
             .catch(error => {
               console.error("Fetch error:", error);
@@ -41,6 +43,16 @@ export default function details() {
         }
       }, []);
 
+      const handleAdvancedAnalysis = (category:any,items : any) => {
+        if (Array.isArray(items)) {
+          localStorage.setItem("Category",category);
+          localStorage.setItem("selectedItems", JSON.stringify(items)); // Store items array
+          console.log(`Stored items in localStorage`, items);
+          router.push("/analysis");
+        } else {
+          console.warn("No data available to store.");
+        }
+      };
       
 
     return (
@@ -76,7 +88,7 @@ export default function details() {
                 <li className="text-gray-500">No data available</li>
               )}
             </ul>
-          <button className="w-full bg-blue-600 hover:bg-blue-800 text-white py-4 text-lg mt-8 rounded-lg">
+          <button className="w-full bg-blue-600 hover:bg-blue-800 text-white py-4 text-lg mt-8 rounded-lg" onClick={()=>handleAdvancedAnalysis(category,items)}>
             Advanced Analysis
           </button>
         </div>
