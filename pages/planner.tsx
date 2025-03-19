@@ -5,9 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { ChevronDown, ChevronUp, AlertCircle, IndianRupee, Target, Clock, BarChart, Wallet, TrendingUp, Download } from 'lucide-react';
+import { ChevronDown, ChevronUp, AlertCircle, IndianRupee, Target, Clock, BarChart, Wallet, TrendingUp, Download} from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import Link from 'next/link';
 
 
 const PortfolioPlanner = () => {
@@ -65,6 +66,8 @@ const PortfolioPlanner = () => {
 
       const data = await response.json();
       setResult(data);
+      localStorage.setItem("apiResponse",data);
+      console.log(data);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -633,7 +636,7 @@ const PortfolioPlanner = () => {
                         Generating Your Plan...
                       </div>
                     ) : (
-                      'Generate Investment Plan'
+                      'Generate Investment Plan Using AI'
                     )}
                   </Button>
                 </form>
@@ -755,6 +758,11 @@ const PortfolioPlanner = () => {
                         <h4 className="font-semibold text-slate-900">Strategy Overview</h4>
                         <p className="text-slate-600 text-sm">{result.explanation}</p>
                       </div>
+                      <Link href="/details">
+                      <Button
+                      className="w-full bg-blue-600 hover:bg-blue-800 text-white py-6 text-lg"
+                      > Detailed Overview </Button>
+                      </Link>
                     </div>
                   ) : (
                     <div className="space-y-6">
