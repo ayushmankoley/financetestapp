@@ -3,25 +3,28 @@ import { useEffect } from 'react';
 import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button';
 import { useRouter } from "next/navigation";
+
 export default function details() {
     
     // const params = useParams();
     // const {id} = params;
     const [details,setdetails] = useState();
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
+
     useEffect(() => {
         try {
           const storedRequest = localStorage.getItem("apiResponse");
       
           if (storedRequest) {
-            const requestBody = storedRequest; // Ensure valid JSON format
+            const requestBody = storedRequest;
             console.log(storedRequest);
             fetch("/api/detail-show", {
               method: "POST", 
               headers: {
                 "Content-Type": "application/json"
               },
-              body: JSON.stringify(requestBody) // Convert back to JSON string
+              body: JSON.stringify(requestBody)
             })
             .then(response => {
               if (!response.ok) {
@@ -32,14 +35,19 @@ export default function details() {
             .then(data => {
               console.log("Response Data:", data);
               setdetails(data);
+              setLoading(false);
               localStorage.removeItem("apiResponse");
             })
             .catch(error => {
               console.error("Fetch error:", error);
+              setLoading(false);
             });
+          } else {
+            setLoading(false);
           }
         } catch (e) {
           console.error("Error accessing localStorage:", e);
+          setLoading(false);
         }
       }, []);
 
@@ -54,7 +62,6 @@ export default function details() {
         }
       };
       
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-200 via-purple-100 to-pink-200 p-10">
         {/* Header Section */}
@@ -70,34 +77,47 @@ export default function details() {
           </p>
         </div>
       
-        {/* Grid Layout with Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-      {Object.entries(details || {}).map(([category, items]) => (
-        <div key={category} className="bg-white/70 backdrop-blur-md p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">{category}</h2>
-          <p className="text-slate-700 mb-4">Investment insights for {category}.</p>
-          <ul className="text-left text-slate-800 space-y-2">
-              {Array.isArray(items) ? (
-                items.map((item, index) => (
-                  <li key={index} className="flex justify-between font-semibold py-2">
-                    <span>{item.name}</span>
-                    <span className="text-blue-600">{item.weight}</span>
-                  </li>
-                ))
-              ) : (
-                <li className="text-gray-500">No data available</li>
-              )}
-            </ul>
-          <button className="w-full bg-blue-600 hover:bg-blue-800 text-white py-4 text-lg mt-8 rounded-lg" onClick={()=>handleAdvancedAnalysis(category,items)}>
-            Advanced Analysis
-          </button>
-        </div>
-      ))}
-    </div>
-
-
+        {/* Loading Animation */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center p-12">
+            <div className="w-16 h-16 border-t-4 border-b-4 border-blue-600 rounded-full animate-spin mb-4"></div>
+            <p className="text-xl font-semibold text-slate-700">Loading your investment data...</p>
+          </div>
+        ) : (
+          /* Grid Layout with Cards */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+            {Object.entries(details || {}).length > 0 ? (
+              Object.entries(details || {}).map(([category, items]) => (
+                <div key={category} className="bg-white/70 backdrop-blur-md p-6 rounded-lg shadow-md flex flex-col">
+                  <h2 className="text-2xl font-bold text-slate-900 mb-2">{category}</h2>
+                  <p className="text-slate-700 mb-4">Investment insights for {category}.</p>
+                  <ul className="text-left text-slate-800 space-y-2 flex-grow">
+                    {Array.isArray(items) ? (
+                      items.map((item, index) => (
+                        <li key={index} className="flex justify-between font-semibold py-2">
+                          <span>{item.name}</span>
+                          <span className="text-blue-600">{item.weight}</span>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-gray-500">No data available</li>
+                    )}
+                  </ul>
+                  <button 
+                    className="w-full bg-blue-600 hover:bg-blue-800 text-white py-4 text-lg mt-4 rounded-lg" 
+                    onClick={()=>handleAdvancedAnalysis(category,items)}
+                  >
+                    Advanced Analysis
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-3 text-center p-8 bg-white/70 backdrop-blur-md rounded-lg shadow-md">
+                <p className="text-xl text-slate-700">No investment data available. Please try again later.</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
-      
-    
-  )
+    )
 }
