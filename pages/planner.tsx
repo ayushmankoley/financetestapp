@@ -375,6 +375,48 @@ const PortfolioPlanner = () => {
                           />
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
                         </div>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleInputChange({
+                              target: { name: 'initialAmount', value: '100000' }
+                            })}
+                          >
+                            ₹1,00,000
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleInputChange({
+                              target: { name: 'initialAmount', value: '300000' }
+                            })}
+                          >
+                            ₹3,00,000
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleInputChange({
+                              target: { name: 'initialAmount', value: '500000' }
+                            })}
+                          >
+                            ₹5,00,000
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleInputChange({
+                              target: { name: 'initialAmount', value: '1000000' }
+                            })}
+                          >
+                            ₹10,00,000
+                          </Button>
+                        </div>
                       </div>
 
                       <div className="space-y-2">
@@ -394,6 +436,48 @@ const PortfolioPlanner = () => {
                           />
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
                         </div>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleInputChange({
+                              target: { name: 'goalAmount', value: '300000' }
+                            })}
+                          >
+                            ₹3,00,000
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleInputChange({
+                              target: { name: 'goalAmount', value: '500000' }
+                            })}
+                          >
+                            ₹5,00,000
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleInputChange({
+                              target: { name: 'goalAmount', value: '1000000' }
+                            })}
+                          >
+                            ₹10,00,000
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleInputChange({
+                              target: { name: 'goalAmount', value: '2000000' }
+                            })}
+                          >
+                            ₹20,00,000
+                          </Button>
+                        </div>
                       </div>
                     </div>
 
@@ -411,6 +495,58 @@ const PortfolioPlanner = () => {
                         required
                         className="w-full"
                       />
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleInputChange({
+                            target: { name: 'goalName', value: 'House Down Payment' }
+                          })}
+                        >
+                          House Down Payment
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleInputChange({
+                            target: { name: 'goalName', value: 'Car Fund' }
+                          })}
+                        >
+                          Car Fund
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleInputChange({
+                            target: { name: 'goalName', value: 'Agricultural Goal' }
+                          })}
+                        >
+                          Agricultural Goal
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleInputChange({
+                            target: { name: 'goalName', value: 'Education Fund' }
+                          })}
+                        >
+                          Education Fund
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleInputChange({
+                            target: { name: 'goalName', value: 'Retirement Plan' }
+                          })}
+                        >
+                          Retirement Plan
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
