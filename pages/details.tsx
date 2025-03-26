@@ -1,14 +1,15 @@
-import React, {useState,useRef} from 'react'
+import React, { useState } from 'react'
 import { useEffect } from 'react';
-import { useParams } from 'next/navigation'
-import { Button } from '@/components/ui/button';
 import { useRouter } from "next/navigation";
 
-export default function details() {
+export default function Details() {
     
-    // const params = useParams();
-    // const {id} = params;
-    const [details,setdetails] = useState();
+    interface InvestmentItem {
+      name: string;
+      weight: string | number;
+    }
+    
+    const [details, setdetails] = useState<Record<string, InvestmentItem[]>>();
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
@@ -51,9 +52,9 @@ export default function details() {
         }
       }, []);
 
-      const handleAdvancedAnalysis = (category:any,items : any) => {
+      const handleAdvancedAnalysis = (category: string, items: InvestmentItem[]) => {
         if (Array.isArray(items)) {
-          localStorage.setItem("Category",category);
+          localStorage.setItem("Category", category);
           localStorage.setItem("selectedItems", JSON.stringify(items)); // Store items array
           console.log(`Stored items in localStorage`, items);
           router.push("/analysis");

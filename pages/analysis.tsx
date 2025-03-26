@@ -3,7 +3,6 @@ import { useRouter } from 'next/navigation';
 import { CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, XAxis, YAxis } from 'recharts';
 import { motion } from 'framer-motion';
 
-// Define the type for stock data
 interface StockData {
   symbol: string;
   name: string;
@@ -14,20 +13,17 @@ interface StockData {
   };
 }
 
-// Define the type for chart data items
 interface ChartDataItem {
   month: string;
   price: number;
   type: 'Historical' | 'Predicted';
 }
 
-// Define the type for selected items
 interface SelectedItem {
   name: string;
   weight: number;
 }
 
-// Define the type for analysis results
 interface AnalysisResults {
   stock: string;
   symbol: string;
@@ -49,7 +45,6 @@ export default function Analysis() {
   const [analysisResults, setAnalysisResults] = useState<AnalysisResults | null>(null);
   const router = useRouter();
 
-  // Step 1: Get data from localStorage when component mounts
   useEffect(() => {
     try {
       const storedCategory = localStorage.getItem("Category");
@@ -59,7 +54,6 @@ export default function Analysis() {
         setCategory(storedCategory);
         setSelectedItems(JSON.parse(storedItems));
       } else {
-        // For demo purposes, create sample data if none exists
         const demoCategory = "Tech Growth";
         const demoItems = [
           { name: "Apple", weight: 25 },
@@ -77,7 +71,6 @@ export default function Analysis() {
       console.error('Error accessing localStorage:', e);
       setError("Error loading investment data. Using demo data instead.");
       
-      // Set demo data
       const demoCategory = "Tech Growth";
       const demoItems = [
         { name: "Apple", weight: 25 },
@@ -93,18 +86,14 @@ export default function Analysis() {
     }
   }, []);
 
-  // Generate demo stock data instead of fetching from API
   useEffect(() => {
     const generateDemoStockData = () => {
       if (selectedItems.length === 0) return;
       
       try {
         const stockDataResults = selectedItems.map((item) => {
-          // Convert item name to a stock symbol
           const symbol = item.name.toUpperCase().replace(/\s+/g, '');
           
-          // Generate realistic looking stock data
-          // Create a base price that's consistent for each stock
           const basePrice = (
             symbol === 'APPLE' ? 14850 : 
             symbol === 'MICROSOFT' ? 28950 : 
@@ -115,19 +104,15 @@ export default function Analysis() {
             8250
           );
           
-          // Create some random volatility that's different each time
-          const volatility = Math.random() * 0.15 + 0.05; // 1-4% volatility (reduced for smoother trends)
-          const trend = Math.random() * 0.15 - 0.10; // -5 to +10% overall trend
+          const volatility = Math.random() * 0.03 + 0.01;
+          const trend = Math.random() * 0.15 - 0.05;
           
-          // Generate 12 months of closing prices with trend and volatility
           const prices = Array(12).fill(0).map((_, i) => {
-            // Add noise and trend
             const trendComponent = basePrice * (1 + trend * (i/12));
             const dailyChange = (Math.random() - 0.5) * volatility * basePrice;
-            return Math.max(trendComponent + dailyChange, basePrice * 0.8); // Prevent prices from going too low
+            return Math.max(trendComponent + dailyChange, basePrice * 0.8);
           });
           
-          // Generate month names (last 12 months)
           const monthNames = [
             'April', 'May', 'June', 'July', 'August', 'September', 
             'October', 'November', 'December', 'January', 'February', 'March'
@@ -144,7 +129,6 @@ export default function Analysis() {
           };
         });
         
-        // Update the stockDataObject type
         const stockDataObject: Record<string, StockData> = stockDataResults.reduce((acc: Record<string, StockData>, stock: StockData) => {
           acc[stock.symbol] = stock;
           return acc;
@@ -152,7 +136,6 @@ export default function Analysis() {
         
         setStockData(stockDataObject);
         
-        // Select the first stock for initial analysis
         if (stockDataResults.length > 0) {
           analyzeStockData(stockDataResults[0]);
         }
@@ -167,47 +150,37 @@ export default function Analysis() {
     }
   }, [selectedItems]);
 
-  // Step 3: Analyze the stock data 
   const analyzeStockData = async (stock: StockData) => {
     try {
       setLoading(true);
       
-      // Extract closing prices from stock data
       const values = stock.priceData.c;
       const months = stock.priceData.t;
       
-      // Demo analysis - perform a simple linear regression
       const n = values.length;
       const xs = Array.from({ length: n }, (_, i) => i + 1);
       
-      // Calculate means
       const xMean = xs.reduce((sum: number, x: number) => sum + x, 0) / n;
       const yMean = values.reduce((sum: number, y: number) => sum + y, 0) / n;
       
-      // Calculate slope and intercept
       const numerator = xs.reduce((sum: number, x: number, i: number) => sum + (x - xMean) * (values[i] - yMean), 0);
       const denominator = xs.reduce((sum: number, x: number) => sum + Math.pow(x - xMean, 2), 0);
       const slope = numerator / denominator;
       const intercept = yMean - slope * xMean;
       
-      // Calculate R-squared
       const yPred = xs.map((x: number) => slope * x + intercept);
       const ssTot = values.reduce((sum: number, y: number) => sum + Math.pow(y - yMean, 2), 0);
       const ssRes = values.reduce((sum: number, y: number, i: number) => sum + Math.pow(y - yPred[i], 2), 0);
       const rSquared = 1 - (ssRes / ssTot);
       
-      // UPDATED: Calculate future predictions (24 months instead of 12)
       const futurePredictions = Array(30).fill(0).map((_, i) => {
-        // Use the corresponding historical value (cycling through if needed)
         const historicalIndex = i % values.length;
         const baseValue = values[historicalIndex];
         
-        // Add a small random variance (less than 1%)
-        const variance = (Math.random() * 0.02 - 0.01) * baseValue; // -1% to +1% variance
+        const variance = (Math.random() * 0.02 - 0.01) * baseValue;
         return Math.max(0, baseValue + variance);
       });
       
-      // UPDATED: Future month names (24 months for 3-year total view)
       const futureMonths = [
         'April', 'May', 'June', 'July', 'August', 'September', 
         'October', 'November', 'December', 'January', 'February', 'March',
@@ -215,7 +188,6 @@ export default function Analysis() {
         'October', 'November', 'December', 'January', 'February', 'March'
       ];
       
-      // Prepare data for the chart
       const historicalData = values.map((price: number, index: number) => ({
         month: months[index],
         price: price,
@@ -230,8 +202,6 @@ export default function Analysis() {
       
       const chartData = [...historicalData, ...futureData];
       
-      // Determine trend direction based on last historical price vs. last predicted price
-      // instead of using the regression slope
       const lastHistoricalPrice = values[values.length - 1];
       const lastPredictedPrice = futurePredictions[futurePredictions.length - 1];
       const trendDirection = lastPredictedPrice >= lastHistoricalPrice;
@@ -244,11 +214,10 @@ export default function Analysis() {
           slope: slope,
           intercept: intercept,
           rSquared: rSquared,
-          trendDirection: trendDirection // Store the trend direction based on comparison
+          trendDirection: trendDirection
         }
       });
       
-      // Simulate loading delay for better UX
       setTimeout(() => {
         setLoading(false);
       }, 1500);
@@ -259,12 +228,10 @@ export default function Analysis() {
     }
   };
 
-  // Handle back navigation
   const handleBack = () => {
     router.push('/planner');
   };
 
-  // Step 4: Render the analysis page with visualization
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-50 to-purple-100 p-6 md:p-10">
       {/* Header Section */}
@@ -392,15 +359,15 @@ export default function Analysis() {
                   dataKey="month" 
                   label={{ value: 'Month', position: 'insideBottomRight', offset: -10, fill: '#555' }} 
                   tick={{ fill: '#555' }}
-                  interval={2}  // Changed to show every third month due to more data points
+                  interval={2}
                 />
                 <YAxis 
                   label={{ value: 'Price (₹)', angle: -90, position: 'insideLeft', offset: -5, fill: '#555' }} 
                   domain={['auto', 'auto']}
                   tick={{ fill: '#555' }}
                   tickFormatter={(value) => `₹${value.toLocaleString()}`}
-                  width={80} // Increased width for y-axis to prevent overlapping
-                  tickCount={6} // Reduced number of ticks to prevent overlapping
+                  width={80}
+                  tickCount={6}
                 />
                 <Tooltip 
                   formatter={(value: number) => [`₹${Number(value).toLocaleString()}`, 'Price']}

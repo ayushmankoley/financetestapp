@@ -31,7 +31,7 @@ interface AllocationItem {
   }
 
 
-  const detailedOptions = async(allocation : any) => {
+  const detailedOptions = async(allocation: AllocationItem[]) => {
     const prompt = `Act as an expert Indian financial advisor and generate a detailed investment portfolio allocation plan. 
 Return ONLY a JSON object (no other text) with the following structure: 
     
@@ -61,8 +61,9 @@ export default async function DetShow(req: NextApiRequest,
         
         const response = await detailedOptions(allocation);
         return res.status(200).json(response);
-    } catch (error: any) {
-        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        res.status(500).json({ error: 'Internal Server Error', details: errorMessage });
     }
     
 }

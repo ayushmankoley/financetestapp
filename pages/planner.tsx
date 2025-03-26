@@ -636,7 +636,7 @@ const PortfolioPlanner = () => {
                         Generating Your Plan...
                       </div>
                     ) : (
-                      'Generate Investment Plan Using AI'
+                      'Generate Investment Plan'
                     )}
                   </Button>
                 </form>

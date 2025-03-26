@@ -107,3 +107,47 @@ body {
   width: 24px; /* Ensure correct size */
   height: 24px;
 }
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #FFF;
+  border-bottom-color: #3b82f6; /* blue-600 */
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+:root {
+  --color-1: 0 100% 67%; /* Red */
+  --color-2: 204 100% 67%; /* Blue */
+  --color-3: 150 100% 67%; /* Green */
+  --color-4: 291 100% 67%; /* Purple */
+  --color-5: 46 100% 67%; /* Yellow */
+}
+
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-rainbow {
+  animation: rainbow 8s ease infinite;
+}
