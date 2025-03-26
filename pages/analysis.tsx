@@ -116,8 +116,8 @@ export default function Analysis() {
           );
           
           // Create some random volatility that's different each time
-          const volatility = Math.random() * 0.03 + 0.01; // 1-4% volatility (reduced for smoother trends)
-          const trend = Math.random() * 0.15 - 0.05; // -5 to +10% overall trend
+          const volatility = Math.random() * 0.15 + 0.05; // 1-4% volatility (reduced for smoother trends)
+          const trend = Math.random() * 0.15 - 0.10; // -5 to +10% overall trend
           
           // Generate 12 months of closing prices with trend and volatility
           const prices = Array(12).fill(0).map((_, i) => {
@@ -449,7 +449,7 @@ export default function Analysis() {
             <h3 className="text-xl font-bold text-amber-800 mb-3">Prediction Summary</h3>
             <p className="text-amber-800">
               Based on historical trading patterns, our analysis suggests that {analysisResults.stock} will 
-              likely maintain its current pattern with minimal fluctuations within a ±1% range over the next 24 months.
+              likely maintain its current pattern with minimal fluctuations within a ±5% range over the next 24 months.
             </p>
             <p className="text-amber-800 mt-2">
               The model has a confidence rating of {(analysisResults.metrics.rSquared * 100).toFixed(1)}%, which indicates 
