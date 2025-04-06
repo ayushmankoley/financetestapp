@@ -30,7 +30,7 @@ const LandingPage = () => {
   }, []);
 
   const handleVideoClick = () => {
-    window.open('https://youtube.com/your-video-link', '_blank');
+    window.open('https://youtu.be/hlO5l18EsUs', '_blank');
   };
 
   return (
